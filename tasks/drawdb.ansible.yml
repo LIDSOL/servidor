@@ -1,0 +1,84 @@
+---
+- name: Deploy drawdb from GitHub Fork
+  become: true
+
+  vars:
+    github_repo: "https://github.com/LIDSOL/drawdb.git"
+    app_dir: "/app"
+
+  tasks:
+
+    - name: Install programs
+      apt:
+        name: git, nodejs, npm, rsync
+        state: present
+      when: ansible_distribution == "Debian"
+      tags:
+        - 1
+
+    - name: Clone GitHub repo
+      git:
+        repo: "{{ github_repo }}"
+        dest: "{{ app_dir }}"
+        force: yes
+      tags:
+        - 2
+
+    - name: install dependencies
+      command: npm install
+      args:
+        chdir: "{{ app_dir }}"
+      tags:
+        - 3
+
+    - name: Build app
+      command: npm run build
+      args:
+        chdir: "{{ app_dir }}"
+      tags:
+        - 4
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: latest
+      when: ansible_distribution == "Debian"
+      tags:
+        - 5
+
+    - name: Enable nginx
+      service:
+        name: nginx
+        enabled: true
+        state: started
+      when: ansible_distribution == "Debian"
+      tags:
+        - 6
+
+    - name: Remove contents of /var/www/html
+      command: rm -r /var/www/html
+      tags:
+        - 7
+
+    - name: Copy build files to prod dir
+      command: cp -r {{ app_dir }}/dist/ /var/www/html
+      tags:
+        - 8
+
+    - name: Set permissions of /var/www/html
+      file:
+        path: /var/www/html
+        owner: www-data
+        group: www-data
+        mode: "0755"
+      when: ansible_distribution == "Debian"
+      tags:
+        - 9
+      
+    - name: Restart nginx
+      service:
+        name: nginx
+        state: restarted
+      when: ansible_distribution == "Debian"
+      tags:
+        - 10
