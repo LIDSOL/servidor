@@ -93,25 +93,4 @@
     name: debian-mirror-sync.timer
     enabled: true
     state: started
-
-- name: Copy debian-cd-mirror-sync.service
-  ansible.builtin.copy:
-    src: files/mirrors/debian-cd-mirror-sync.service
-    dest: /etc/systemd/system/debian-cd-mirror-sync.service
-    owner: root
-    group: root
-    mode: '0644'
-
-- name: Copy debian-cd-mirror-sync.timer
-  ansible.builtin.copy:
-    src: files/mirrors/debian-cd-mirror-sync.timer
-    dest: /etc/systemd/system/debian-cd-mirror-sync.timer
-    owner: root
-    group: root
-    mode: '0644'
-
-- name: Enable and start debian-cd-mirror-sync.timer
-  ansible.builtin.systemd:
-    name: debian-cd-mirror-sync.timer
-    enabled: true
-    state: started
+    daemon_reload: yes
