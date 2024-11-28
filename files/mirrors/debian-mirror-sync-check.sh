@@ -39,22 +39,24 @@ function should_pull() {
     local_mirror_time=$1
     upstream_time=$2
     current_time=$3
-    # Log input of function to stderr
+
+    # Get epoch time for each date
     local_mirror_time_epoch=$(date -d "$local_mirror_time" +%s)
     upstream_time_epoch=$(date -d "$upstream_time" +%s)
+    current_time_epoch=$(date -d "$current_time" +%s)
 
-    # If it has been less than 2 hours since the upstream mirror started updating,
-    # then the mirror is considered up-to-date
-    if [ $upstream_time_epoch -gt $(date -d "$current_time - 2 hours" +%s) ]; then
-        # Log the operation above to stderr
-        # echo "upstream_time_epoch minus current_time: $(($upstream_time_epoch - $(date -d "$current_time" +%s)))" >&2
-        echo "false"
+    # If it has a difference of more than 4 hours between the local mirror and the upstream mirror,
+    # then the local mirror is considered out of date for a long time
+    if [ $local_mirror_time_epoch -lt $(($upstream_time_epoch - 14400)) ]; then
+        echo "The existing mirror is out of date for a long time" >&2
+        echo "true"
         return
     fi
 
     # If the local mirror is older than the upstream mirror, then the local mirror
-    # is considered out of date
-    if [ $local_mirror_time_epoch -lt $upstream_time_epoch ]; then
+    # and the upstream mirror synced more than 2 hours ago, the local mirror is considered out of date
+    if [ $local_mirror_time_epoch -lt $upstream_time_epoch ] && [ $upstream_time_epoch -lt $(($current_time_epoch - 7200)) ]; then
+        echo "The local mirror is older than the upstream mirror" >&2
         echo "true"
     else
         echo "false"
@@ -63,13 +65,18 @@ function should_pull() {
 
 # If this script is called with the --test flag, then it does not perform any actions
 if [ "$1" == "--test" ]; then
-    return
+    exit 0
 fi
 
-if [ $(should_pull "$(get_local_time)" "$(get_upstream_time) $(date -u)") == "true" ]; then
-    echo "Local mirror is out of date, pulling from upstream mirror. Upstream date: $(get_upstream_time), Local date: $(get_local_time) - current date: $(date -u)"
+# Assign functions output to variables so they share the same value for the whole script
+upstream_time=$(get_upstream_time)
+local_time=$(get_local_time)
+current_time=$(date -u)
+
+if [ $(should_pull "$local_time" "$upstream_time" "$current_time") == "true" ]; then
+    echo "Local mirror is out of date, pulling from upstream mirror. Upstream date: $upstream_time, Local date: $local_time - current date: $current_time"
     cd ${MIRROR_DIRECTORY}
     /home/mirrors/bin/ftpsync sync:all
 else
-    echo "Local mirror is up to date. Upstream date: $(get_upstream_time), Local date: $(get_local_time) - current date: $(date -u)"
+    echo "Local mirror is up to date. Upstream date: $upstream_time, Local date: $local_time - current date: $current_time"
 fi
