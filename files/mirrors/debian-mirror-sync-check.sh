@@ -50,9 +50,9 @@ function should_pull() {
         return
     fi
 
-    # If it has been less than 2 hours since the upstream mirror started updating,
-    # then the mirror is considered up-to-date
-    if [ $upstream_time_epoch -gt $(($current_time_epoch - 7200)) ]; then
+    # If it has been less than half an hour since the upstream mirror started updating,
+    # then we wait a little longer to allow upstream to finish its update.
+    if [ $upstream_time_epoch -gt $(($current_time_epoch - 1800)) ]; then
         # Log the operation above to stderr
         echo "false"
         return
