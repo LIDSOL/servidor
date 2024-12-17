@@ -1,21 +1,22 @@
-# Setup node_exporter
+# Setup prometheus
+# Variables: prometheus_version
 ---
 - name: Download prometheus
   ansible.builtin.get_url:
-    url: https://github.com/prometheus/prometheus/releases/download/v2.53.2/prometheus-2.53.2.linux-amd64.tar.gz
-    dest: /tmp/prometheus-2.53.2.linux-amd64.tar.gz
+    url: https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz
+    dest: /tmp/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz
     mode: '0644'
 
 - name: Extract prometheus
   ansible.builtin.unarchive:
-    src: /tmp/prometheus-2.53.2.linux-amd64.tar.gz
+    src: /tmp/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz
     dest: /tmp
     remote_src: true
-    creates: /tmp/prometheus-2.53.2.linux-amd64/prometheus
+    creates: /tmp/prometheus-{{ prometheus_version }}.linux-amd64/prometheus
 
 - name: Copy prometheus binary
   ansible.builtin.copy:
-    src: /tmp/prometheus-2.53.2.linux-amd64/prometheus
+    src: /tmp/prometheus-{{ prometheus_version }}.linux-amd64/prometheus
     dest: /usr/local/bin/prometheus
     mode: '0755'
     owner: root
@@ -75,9 +76,9 @@
 - name: Remove prometheus tarball
   ansible.builtin.file:
     state: absent
-    path: /tmp/prometheus-2.53.2.linux-amd64.tar.gz
+    path: /tmp/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz
 
 - name: Remove prometheus extracted directory
   ansible.builtin.file:
-    path: /tmp/prometheus-2.53.2.linux-amd64/
+    path: /tmp/prometheus-{{ prometheus_version }}.linux-amd64/
     state: absent

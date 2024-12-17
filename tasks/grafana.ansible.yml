@@ -1,4 +1,5 @@
 # Setup grafana
+# Variables: grafana_version
 ---
 - name: Install requirements
   ansible.builtin.apt:
@@ -10,13 +11,13 @@
 
 - name: Download grafana package
   ansible.builtin.get_url:
-    url: https://dl.grafana.com/oss/release/grafana_11.2.2+security~01_amd64.deb
-    dest: /tmp/grafana_11.2.2+security-01_amd64.deb
+    url: https://dl.grafana.com/oss/release/grafana_{{ grafana_version }}+security~01_amd64.deb
+    dest: /tmp/grafana_{{ grafana_version }}+security-01_amd64.deb
     mode: '0644'
 
 - name: Install grafana
   ansible.builtin.apt:
-    deb: /tmp/grafana_11.2.2+security-01_amd64.deb
+    deb: /tmp/grafana_{{ grafana_version }}+security-01_amd64.deb
 
 - name: Start and enable grafana-server service
   ansible.builtin.service:
@@ -24,3 +25,15 @@
     enabled: true
     state: restarted
     daemon_reload: true
+
+- name: Ensure grafana-server is running
+  ansible.builtin.wait_for:
+    port: 3000
+    delay: 10
+    timeout: 300
+    state: started
+
+- name: Remove grafana package
+  ansible.builtin.file:
+    state: absent
+    path: /tmp/grafana_{{ grafana_version }}+security-01_amd64.deb
