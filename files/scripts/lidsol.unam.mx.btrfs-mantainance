@@ -10,8 +10,8 @@ RESPONSE="File server: Starting weekly disk check"
 echo "$(date) - ${RESPONSE}" >> ${LOG_FILE}
 
 # Create snapshots
-/usr/bin/btrfs subvolume snapshot -r /.snapshots/@rootfs-$(date -I) /
-/usr/bin/btrfs subvolume snapshot -r /.snapshots/@varfs-$(date -I) /var
+/usr/bin/btrfs subvolume snapshot -r / /.snapshots/@rootfs-$(date -I)
+/usr/bin/btrfs subvolume snapshot -r /var /.snapshots/@varfs-$(date -I)
 
 # Start long smart test on HDDs
 for disk in sda sdb; do
