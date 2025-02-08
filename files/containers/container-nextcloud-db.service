@@ -27,7 +27,7 @@ ExecStart=/usr/bin/podman run \
 	--detach \
 	--label io.containers.autoupdate=registry \
 	-v /var/containers/nextcloud/mysql:/var/lib/mysql:Z \
-	--name nextcloud-db docker.io/library/mariadb:10.11
+	--name nextcloud-db docker.io/library/mariadb:10
 ExecStop=/usr/bin/podman stop \
 	--ignore -t 10 \
 	--cidfile=%t/%n.ctr-id
