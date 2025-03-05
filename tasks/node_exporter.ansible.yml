@@ -1,21 +1,22 @@
 # Setup node_exporter
+# Variables: node_exporter_version
 ---
 - name: Download node_exporter
   ansible.builtin.get_url:
-    url: https://github.com/prometheus/node_exporter/releases/download/v1.8.2/node_exporter-1.8.2.linux-amd64.tar.gz
-    dest: /tmp/node_exporter-1.8.2.linux-amd64.tar.gz
+    url: https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz
+    dest: /tmp/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz
     mode: '0644'
 
 - name: Extract node_exporter
   ansible.builtin.unarchive:
-    src: /tmp/node_exporter-1.8.2.linux-amd64.tar.gz
+    src: /tmp/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz
     dest: /tmp
     remote_src: true
-    creates: /tmp/node_exporter-1.8.2.linux-amd64/node_exporter
+    creates: /tmp/node_exporter-{{ node_exporter_version }}.linux-amd64/node_exporter
 
 - name: Copy node_exporter binary
   ansible.builtin.copy:
-    src: /tmp/node_exporter-1.8.2.linux-amd64/node_exporter
+    src: /tmp/node_exporter-{{ node_exporter_version }}.linux-amd64/node_exporter
     dest: /usr/local/bin/node_exporter
     mode: '0755'
     owner: root
@@ -40,7 +41,7 @@
   ansible.builtin.service:
     name: node_exporter
     enabled: true
-    state: started
+    state: restarted
     daemon_reload: true
 
 - name: Ensure node_exporter is running
@@ -53,9 +54,9 @@
 - name: Remove node_exporter tarball
   ansible.builtin.file:
     state: absent
-    path: /tmp/node_exporter-1.8.2.linux-amd64.tar.gz
+    path: /tmp/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz
 
 - name: Remove node_exporter extracted directory
   ansible.builtin.file:
-    path: /tmp/node_exporter-1.8.2.linux-amd64
+    path: /tmp/node_exporter-{{ node_exporter_version }}.linux-amd64
     state: absent

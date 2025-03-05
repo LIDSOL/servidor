@@ -1,13 +1,44 @@
 ---
 - name: Setup full lidsol.unam.mx with services
   hosts: lidsol.unam.mx
-  become: true
 
   tasks:
     - name: Essential configuration
       ansible.builtin.import_tasks:
         file: tasks/essentials.ansible.yml
+      become: true
 
     - name: Disk monitoring and mantainance script
       ansible.builtin.import_tasks:
         file: tasks/disk.ansible.yml
+      become: true
+
+    - name: Install podman
+      ansible.builtin.apt:
+        name: podman
+        state: present
+        update_cache: true
+      become: true
+
+    - name: Enable linger for lidsolito user
+      ansible.builtin.file:
+        path: /var/lib/systemd/linger/lidsolito
+        state: touch
+        owner: root
+        group: root
+        mode: '0644'
+      become: true
+
+    - name: Enable podman auto-update service root
+      ansible.builtin.systemd:
+        name: podman-auto-update.timer
+        enabled: true
+        state: started
+      become: true
+
+    - name: Enable podman auto-update service lidsolito
+      ansible.builtin.systemd:
+        name: podman-auto-update.timer
+        enabled: true
+        state: started
+        scope: user

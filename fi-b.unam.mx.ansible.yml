@@ -43,14 +43,20 @@
     - name: Prometheus node_exporter
       ansible.builtin.import_tasks:
         file: tasks/node_exporter.ansible.yml
+      vars:
+        node_exporter_version: 1.8.2
 
     - name: Prometheus install
       ansible.builtin.import_tasks:
         file: tasks/prometheus.ansible.yml
+      vars:
+        prometheus_version: 2.53.3
 
     - name: Grafana install
       ansible.builtin.import_tasks:
         file: tasks/grafana.ansible.yml
+      vars:
+        grafana_version: 11.3.0
 
     - name: Disk monitoring and mantainance script
       ansible.builtin.import_tasks:
