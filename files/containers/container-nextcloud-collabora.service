@@ -29,7 +29,7 @@ ExecStart=/usr/bin/podman run \
 	-e domain=cloud\\\\.lidsol\\\\.unam\\\\.mx \
 	-e "extra_params=--o:ssl.enable=false --o:ssl.termination=true" \
 	-e aliasgroup1=https://cloud.lidsol.unam.mx:443 \
-	--name nextcloud-collabora docker.io/collabora/code:latest
+	--name nextcloud-collabora docker.io/collabora/code:24.04.12.4.1
 ExecStop=/usr/bin/podman stop \
 	--ignore -t 10 \
 	--cidfile=%t/%n.ctr-id
